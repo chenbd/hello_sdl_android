@@ -11,6 +11,7 @@ import com.smartdevicelink.exception.SdlException;
 import com.smartdevicelink.exception.SdlExceptionCause;
 import com.smartdevicelink.proxy.RPCRequest;
 import com.smartdevicelink.proxy.SdlProxyALM;
+import com.smartdevicelink.proxy.SdlProxyBuilder;
 import com.smartdevicelink.proxy.callbacks.OnServiceEnded;
 import com.smartdevicelink.proxy.callbacks.OnServiceNACKed;
 import com.smartdevicelink.proxy.interfaces.IProxyListenerALM;
@@ -78,6 +79,8 @@ import com.smartdevicelink.proxy.rpc.enums.HMILevel;
 import com.smartdevicelink.proxy.rpc.enums.LockScreenStatus;
 import com.smartdevicelink.proxy.rpc.enums.SdlDisconnectedReason;
 import com.smartdevicelink.proxy.rpc.enums.TextAlignment;
+import com.smartdevicelink.transport.BaseTransportConfig;
+import com.smartdevicelink.transport.USBTransportConfig;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -164,7 +167,10 @@ public class SdlService extends Service implements IProxyListenerALM{
 		if (proxy == null) {
 			try {
                 Log.i(TAG, "Starting SDL Proxy");
-				proxy = new SdlProxyALM(this, APP_NAME, true, APP_ID);
+
+                BaseTransportConfig myTransport = new USBTransportConfig(getApplicationContext());
+                proxy = new SdlProxyBuilder.Builder(this, APP_ID, APP_NAME, true).setTransportType(myTransport).build();
+
 			} catch (SdlException e) {
 				e.printStackTrace();
 				// error creating proxy, returned proxy = null
@@ -755,11 +761,11 @@ public class SdlService extends Service implements IProxyListenerALM{
         Log.i(TAG, "UpdateTurnList response from SDL: " + response.getResultCode().name() + " Info: " + response.getInfo());
 
 	}
-
+	
 	@Override
 	public void onServiceDataACK() {
-
-	}
+		
+	}	
 	
 	@Override
 	public void onOnDriverDistraction(OnDriverDistraction notification) {
@@ -781,5 +787,4 @@ public class SdlService extends Service implements IProxyListenerALM{
             stopSelf();
 		}
 	};
-
 }
